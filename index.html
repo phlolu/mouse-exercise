@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title></title>
+
+<style>
+	h3{
+		font-family: "Segoe UI";
+		color:  rgb(78,78,78);
+	}
+
+	.grid-container {
+	  border-radius: 2px;
+	  display: grid;
+	  grid-template-columns: 1fr 1fr;
+	  grid-template-rows: 300px 300px;
+	  grid-gap: 1px;
+	  background-color: hsl(27,90%,55%);
+	  padding: 5px;
+	}
+
+	.grid-container > div {
+	  background-color: rgba(255, 255, 255, 0.8);
+	  text-align: center;
+	  padding: 20px 0;
+	  font-size: 30px;
+	  border-radius: 2px;
+	}
+
+	canvas {
+	  overflow: scroll;
+	  background-color: #E7E9EB;
+	}
+	
+	.canvasclear{
+	  display: inline;
+	  font-size: 16px;
+	  font-weight: bold;
+	  margin: 4px 2px;
+	  cursor: pointer;
+	  border-radius: 15px;		
+	}
+
+	.button {
+	  min-height: 25%;
+	  width: 50%;
+	  border: 2px solid hsl(27,90%,55%);
+	  color: #2C599D; 
+	  background-color: #E7E9EB;
+	  padding: 15px 32px;
+	  text-align: center;
+	  text-decoration: none;
+	  display: inline-block;
+	  font-size: 16px;
+	  font-weight: bold;
+	  margin: 4px 2px;
+	  cursor: pointer;
+	  border-radius: 15px;
+	}
+
+	.button:active {
+	  box-shadow: 0 5px #666;
+	  transform: translateY(4px);
+	}
+
+</style>
+
+</head>
+
+
+<body onload="init()">
+	<div class="grid-container">
+		<div class="dblclick">
+			<h3>Double Click</h3>
+			<button class="button">Click Here</button>
+		</div>
+		<div class="leftclick">
+			<h3>Left Click</h3>
+			<button class="button">Click Here</button>
+		</div>
+		<div class="rightclick">
+			<h3>Right Click</h3>
+			<button class="button">Click Here</button>
+		</div>
+		<div>
+			<canvas class="placeholder" id="drawcanvas" width=600 height=200>
+			</canvas>
+			<button onclick= "erase()" class="canvasclear">Clear</button>
+		</div>
+	</div>
+
+</body>
+
+
+<script type="text/javascript">
+
+	//Double Click
+	let doubleClickEventArr = [];
+	let doubleClickCount = 0
+	let doubleClickCountComplete = 100
+	let doubleClickTime = 380
+	let doubleClickBtn = document.querySelector('.dblclick > .button')
+
+
+	doubleClickBtn.onclick = function(){
+		doubleClickEventArr.push(event.timeStamp)
+		console.log(doubleClickEventArr)
+		console.log(doubleClickCount)
+
+		if(doubleClickCount >= doubleClickCountComplete){
+				doubleClickBtn.textContent = "Well done. Complete"
+				doubleClickEventArr.length = 0
+		}
+		else if(doubleClickEventArr[1]-doubleClickEventArr[0]<=doubleClickTime && doubleClickEventArr.length>1){
+			doubleClickCount++
+			doubleClickBtn.textContent = doubleClickCount
+			doubleClickEventArr.length = 0
+		}
+		else if (doubleClickEventArr.length>1){
+			if(doubleClickEventArr[2]-doubleClickEventArr[1]<=doubleClickTime){
+				doubleClickCount++
+				doubleClickBtn.textContent = doubleClickCount
+				doubleClickEventArr.length = 0
+			}else if(doubleClickEventArr[2]-doubleClickEventArr[1]>doubleClickTime) {
+				doubleClickEventArr.shift()
+				doubleClickEventArr.shift()
+			}
+		}
+	}
+	doubleClickBtn.oncontextmenu = function(){
+	    console.log('Oops... Right Click')
+	    doubleClickCount = 0
+	    doubleClickBtn.textContent = 'Oops... Right Click. Please try again'
+	    return false;
+	}
+
+
+	
+	//Right Click
+	let rightClickCount = 0
+	let rightClickCountComplete = 100
+	let rightClickBtn = document.querySelector('.rightclick > .button')
+	rightClickBtn.oncontextmenu = function(){
+	    console.log('Right Click')
+	    rightClickCount++
+	    rightClickBtn.textContent = rightClickCount
+    	if(rightClickCount >= rightClickCountComplete){
+			rightClickBtn.textContent = "Well done. Complete"
+			return false;
+		}
+	    return false;
+	}
+	rightClickBtn.onclick = function(){
+	    console.log('Oops... Left Click')
+	    rightClickCount = 0
+	    rightClickBtn.textContent = 'Oops... Left Click. Please try again'
+	}
+
+
+	//Left Click
+	let leftClickCount = 0
+	let leftClickCountComplete = 100
+	let leftClickBtn = document.querySelector('.leftclick > .button')
+	leftClickBtn.onclick = function(){
+	    console.log('Left Click')
+	    leftClickCount++
+	    leftClickBtn.textContent = leftClickCount
+    	if(leftClickCount >= leftClickCountComplete){
+			leftClickBtn.textContent = "Well done. Complete"
+			//return false;
+		}
+	    //return false;
+	}
+	leftClickBtn.oncontextmenu = function(){
+	    console.log('Oops... Right Click')
+	    leftClickCount = 0
+	    leftClickBtn.textContent = 'Oops... Right Click. Please try again'
+	    return false;
+	}
+</script>
+
+<script type="text/javascript">
+	var canvas, context, flag = false,
+		prevX = 0,
+		currX = 0,
+		prevY = 0,
+		currY = 0,
+		dot_flag = false;
+
+	let x = "black", y = 2;
+
+	function init(){
+		canvas = document.getElementById('drawcanvas');
+		context = canvas.getContext("2d");
+		w = canvas.width;
+		h = canvas.height;
+		//console.log(canvas)
+	
+		
+		canvas.addEventListener("mousemove", function(event){
+			findxy('move', event)
+		}, false);
+		canvas.addEventListener("mousedown", function(event){
+			findxy('down', event)
+		}, false);
+		canvas.addEventListener("mouseup", function(event){
+			findxy('up', event)
+		}, false);
+		canvas.addEventListener("mouseout", function(event){
+			findxy('out', event)
+		}, false);
+	
+
+	}
+
+	function draw(){
+		context.beginPath();
+		context.moveTo(prevX, prevY);
+		context.lineTo(currX, currY);
+		context.strokeStyle = x;
+		context.lineWidth = y;
+		context.stroke();
+		context.closePath();
+	}
+
+	function erase(){
+		//let eraser = confirm("Press OK to erase");
+		//if (eraser){
+			context.clearRect(0, 0, w, h);
+			//document.getElementById("canvasimg").style.display = "none";
+		//}
+	}
+
+	function findxy(res, event){
+		if (res == 'down'){
+			prevX = currX;
+			prevY = currY;
+			currX = event.clientX - canvas.offsetLeft;
+			currY = event.clientY - canvas.offsetTop;
+
+			console.log(event.clientX, " ", canvas.offsetLeft)
+
+			flag = true;
+			dot_flag = true;
+			if(dot_flag){
+				context.beginPath();
+				context.fillStyle = x;
+				context.fillRect(currX, currY, 2, 2);
+				context.closePath();
+				dot_flag = false;
+			}
+		}
+
+		if (res == 'up' || res == "out"){
+			flag = false;
+		}
+		if (res == 'move'){
+			if(flag){
+				prevX = currX;
+				prevY = currY;
+				currX = event.clientX - canvas.offsetLeft;
+				currY = event.clientY - canvas.offsetTop;
+				draw();
+			}
+		}
+	}
+
+</script>
+
+
+</html>
