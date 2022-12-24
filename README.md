@@ -1,5 +1,5 @@
-# mouse-exercise
-Mouse clicking exercises to get a user comfortable with using a mouse
+# Mouse Exercise
+Mouse clicking exercises to get a user (my auntie) comfortable with using a mouse
 
-## Run App
+### Run App
 https://phlolu.github.io/mouse-exercise/
